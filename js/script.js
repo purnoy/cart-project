@@ -1,129 +1,180 @@
-const collectionElm = document.querySelector('.collection');
-const nameElm = document.querySelector('.product-name');
-const priceElm = document.querySelector('.product-price');
 const form = document.querySelector('form');
-const msgElm = document.querySelector('.msg');
-const editElm = document.querySelector('.edit-btn');
-const deleteElm = document.querySelector('.delete-btn');
+const productName = document.querySelector('.product-name');
+const productPrice = document.querySelector('.product-price');
+const messageElm = document.querySelector('.msg');
+const collectionElms = document.querySelector('.collection');
+const nameElms = document.querySelector('.product-name');
+const priceElms = document.querySelector('.product-price');
+const submitBtn = document.querySelector('.submit-btn');
 
 let products = [];
 
-//Show Products to UI
-const showProducts = (product) =>{
-    const {id, name, price} = product;
-    const showingProduct =
-    `
-        <div class="d-flex align-items-center justify-content-between product" data-productid="${id}">
-            <div class=" product d-flex align-items-center justify-content-between w-75 my-2">
-                <p class="w-50 text-center py-1  bg-success text-light">${id}</p>
-                <p class="w-50 text-center py-1 ">-</p>    
-                <p class="w-50 text-center py-1  bg-success text-light">${name}</p>
-                <p class="w-50 text-center py-1 ">-</p>                    
-                <p class="w-50 text-center py-1  bg-success text-light">${price}</p>
-            </div>
-            <div class="d-flex align-items-center justify-content-end w-25 my-4">
-                <i class="edit-btn fa-solid fa-pen-to-square fa-lg mx-2"></i>
-                <i class="delete-btn fa-solid fa-trash fa-lg mx-2"></i>
-            </div>
-        </div>
-    `;
-    collectionElm.insertAdjacentHTML('beforeend',showingProduct);
-};
-//Product strorage
-const  productStrore = (name,price) =>{
+//Showing product to the UI
+const showingProducttotheUI = () =>{
+
+    collectionElms.innerHTML = '';
+    products.map(product=>{
+                    const divElms = `
+                    <div class="d-flex align-items-center justify-content-between" data-id="${product.id}">
+                        <div class="d-flex align-items-center justify-content-between w-75 my-1">
+                            <p class="w-50 text-center py-2 fs-5 bg-success text-light">${product.name}</p>
+                            <p class="w-50 text-center py-2 fs-5">-</p>
+                            <p class="w-50 text-center py-2 fs-5 bg-success text-light">${product.price}</p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-end w-25 my-1">
+                            <i class="fa-solid fa-pen-to-square fa-lg mx-2 edit-product"></i>
+                            <i class="fa-solid fa-trash fa-lg mx-2 delete-product"></i>
+                        </div>
+                    </div> 
+                `;
+                console.log(products);
+            collectionElms.insertAdjacentHTML('beforeend', divElms);
+    });
+}
+
+
+
+    //Neutralizing the text field
+    const neutralize = () =>{
+        nameElms.value = '';
+        priceElms.value = '';
+    }
+        //Updating the products list
+        const updatedList = (rcvdProduct) =>{
+            products.map(product=>{
+                if(product.id === rcvdProduct.id){
+                    product.name = rcvdProduct.name;
+                    product.price = rcvdProduct.price;
+                }
+            });
+        }
+//Remove Notifations
+const removetext = () =>{
+    messageElm.innerHTML = '';
+}
+//Notifation for the users
+const showNotication = (textMsg, action='') =>{
+    const divElms = `<div class="bg-${action} d-flex align-items-center justify-content-center">
+                        <p class="py-2 fs-5 text-light">${textMsg}</p>
+                    </div>`;
+    messageElm.insertAdjacentHTML('beforeend', divElms);
+    //Remove Notifations
+    setTimeout(removetext, 3000);
+}
+//Validating input from the user
+const inputValidation = (name,price) =>{
+    if(name =='' || price == ''){
+        //Notifation for the users
+        showNotication('Name of Price Can not be empty', 'danger');
+        return false
+    }
+    else if(!(Number(name)!==Number(name))){
+        showNotication('Name can not be a number', 'danger');
+        return false;
+    }
+    else if(Number(price)!==Number(price)){
+        showNotication('Price can not be a string', 'danger');
+        return false;
+    }
+    else{
+        showNotication('Product added to the cart', 'success');
+        return true;
+    }
+}
+//Making product and add product to the products list
+const productify = (name, price) =>{
     const product = {
-        id: products.length+1,
+        id: products.length +1,
         name,
         price
     }
     products.push(product);
     return product;
-};
-
-//Neutralize the input fields
-const neutralize = () =>{
-    nameElm.value = '';
-    priceElm.value = '';
-};
-//Texting Removng
-const removeText = () =>{
-    msgElm.innerHTML = '';
 }
-//Showing Message
-const showMessage = (textMsg, action='') =>{
-    const mElm = 
-    `<div class="bg-${action} d-flex align-items-center justify-content-center">
-            <p class="py-2 text-light">${textMsg}</p>
-        </div>
-    `;
-    msgElm.insertAdjacentHTML('afterbegin', mElm);
-    setTimeout(removeText, 3000);
-}
-//Input Validation
-const inputValidation = (name,price) =>{
-    if(name == '' || price == ''){
-        showMessage('Name or Price can not be empty', 'danger');
-        return false;
-    }
-    else if(!(Number(name)!==Number(name))){
-        showMessage('Name can not number', 'danger');
-        return false;
-    }
-    else if(Number(price)!==Number(price)){
-        showMessage('Price can not be String', 'danger');
-        return false;
-    }
-    else{
-        showMessage('Product added successfully', 'success');
-        return true;
-    }
-}
-//Geeting Input from User
-const getInput = () =>{
-    const name = nameElm.value;
-    const price = priceElm.value;
+//Getting input from the user
+const gettingInput = () =>{
+    const name = productName.value;
+    const price = productPrice.value;
     return {name, price};
 }
-//Handling input from user
-const handleInput = (e) =>{
-    e.preventDefault();
-    //Getting Input from user(Function Call);
-    const {name,price} = getInput();
-    console.log(name,price);
-    //Validating Input
-    const isValidate = inputValidation(name,price);
-    if(!isValidate){return;}
-    //Neutralize the input fields
-    neutralize();
-    //Product strorage
-    const product = productStrore(name,price);
-    //Show Products to UI
-    showProducts(product);
-}
-//Removing Product from UI
-const removingProductFromUI = id =>{
-    document.querySelector(`[data-productid="${id}"]`).remove();
-    showMessage('Product Removed Successfully', 'info');
-}
-//Removing Product from Product List
- const removingProductfromproductlist = (id) =>{
-    products=products.filter(product=>product.id!==id);
-    console.log(products);
- }
-//Getting product id
-const productIDfinder = (evt) =>{
-        const productElm = evt.target.parentElement.parentElement;
-        const productID = Number(productElm.getAttribute('data-productid'));
-        return productID;
-}
-//Product Modification
-const modifyingProduct = (evt) =>{
-    if(evt.target.classList.contains('delete-btn')){
-        const id = productIDfinder(evt);
-        removingProductfromproductlist(id);
-        removingProductFromUI(id);
+const handleInput = (evt) =>{
+    evt.preventDefault();
+    //Getting input from the user
+    const {name,price} = gettingInput();
+    //Validating input from the user
+    const isValidate = inputValidation(name, price);
+    if(!isValidate){
+        return;
     }
-    
+    //Neutralizing the text field
+    neutralize();
+    if(submitBtn.classList.contains('update-btn')){
+        const id = Number(submitBtn.getAttribute('data-id'));
+        const rcvdProduct = {
+            id,
+            name,
+            price
+        }
+        //Updating the products list
+        updatedList(rcvdProduct);
+        //Resetting
+        submitBtn.classList.remove('bg-Secondary');
+        submitBtn.classList.add('bg-info');
+        submitBtn.textContent = 'Submit';
+        submitBtn.classList.remove('update-btn');
+        showingProducttotheUI();
+        return;
+    }
+    //Making product and add product to the products list
+    const product = productify(name,price);
+    //Showing product to the UI
+    showingProducttotheUI();
 }
 form.addEventListener('submit',handleInput);
-collectionElm.addEventListener('click', modifyingProduct);
+    //Finding the editing product
+    const findingProduct = (id) =>{
+        const product = products.find(product=>product.id===id);
+        return product;
+    }
+    //Populating input Fields
+    const populatingInputfields = (product) =>{
+        const{id,name,price} = product;
+        nameElms.value = name;
+        priceElms.value = price;
+        submitBtn.classList.remove('bg-info');
+        submitBtn.classList.add('bg-secondary');
+        submitBtn.textContent = 'Update Product';
+        submitBtn.classList.add('update-btn');
+        submitBtn.dataset.id = `${id}`;
+    }
+    //Remove Product from UI
+    const removeingProductfromUI = (id) =>{
+        document.querySelector(`[data-id="${id}"]`).remove();
+    }
+    //Filter products list
+    const filteringProduct = (id) =>{
+        products = products.filter(product=>product.id!==id);
+    }
+    //Getting ID from the clicked product
+    const gettingid = (evt) =>{
+        const divElms = evt.target.parentElement.parentElement;
+        const id = Number(divElms.getAttribute('data-id'));
+        return id;
+    }
+const modifyingProduct = (evt) =>{
+    //Getting ID from the clicked product
+    const id = gettingid(evt);
+    if(evt.target.classList.contains('edit-product')){
+        //Finding the editing product
+        const product = findingProduct(id);
+        //Populating input Fields
+        populatingInputfields(product);
+    }
+    else if(evt.target.classList.contains('delete-product')){
+        //Filter products list
+        filteringProduct(id);
+        //Remove Product from UI
+        removeingProductfromUI(id);
+    }
+}
+collectionElms.addEventListener('click', modifyingProduct)
